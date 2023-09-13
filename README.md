@@ -1,10 +1,33 @@
-> # SWnet: a deep learning model for drug response prediction from cancer genomic signatures and compound chemical structures
+# Candle Compatible SWnet
+<!-- : a deep learning model for drug response prediction from cancer genomic signatures and compound chemical structures -->
 
-Core code for the paper "SWnet: a deep learning model for drug response prediction from cancer genomic signatures and compound chemical structures" by Zhaorui Zuo, Penglei Wang, Xiaowei Chen, Li Tian, Hui Ge & Dahong Qian.
+The Candle compatible code for the paper "SWnet: a deep learning model for drug response prediction from cancer genomic signatures and compound chemical structures" by Zhaorui Zuo, Penglei Wang, Xiaowei Chen, Li Tian, Hui Ge & Dahong Qian.
 
-> ## Resources
+## Running the model
+The first step is to build the singularity container. After that the CANDLE_DATA_DIR and CUDA_VISIBLE_DEVICES environment variables have to set. After that, the different shell scripts can be used for training and evaluation.
+
+### Building the container
 ---
+Training and inference are carried out using a Singularity container. The definition file to build the container is SWnet.def.
+Use the command
+```
+singularity build --fakeroot SWnet.sif SWnet.def
+```
+to build the container. 
 
+### Training 
+---
+To train the model using CCLE data, execute the following command. This is will also perform inference on the test set. The configurations are given in the swnet_ccle_model.txt. To get the results using the original data, use these settings; download_data=True, process_data=True, data_source = 'ccle_original.
+
+```
+- singularity exec --nv SWnet.sif train.sh $CUDA_VISIBLE_DEVICES $CANDLE_DATA_DIR
+```
+
+The outputs and the logs get written to the output_dir specified in the swnet_ccle_model.txt.
+
+
+
+<!-- 
 ### Data
 The data in the folder is prepared for training and evaluating the SWnet.
 * `data/GDSC/drug_similarity/GDSC_drug_similarity.csv`: This csv file record the similarity of drugs.
@@ -103,4 +126,4 @@ The following scripts training the GDSC gene weight Layer.
 If you find this code useful for your research, please use the following citation.
 ```
 Zuo, Z., Wang, P., Chen, X. et al. SWnet: a deep learning model for drug response prediction from cancer genomic signatures and compound chemical structures. BMC Bioinformatics 22, 434 (2021). https://doi.org/10.1186/s12859-021-04352-9
-```
+``` -->
