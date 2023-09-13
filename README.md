@@ -3,7 +3,7 @@
 
 The Candle compatible code for the paper "SWnet: a deep learning model for drug response prediction from cancer genomic signatures and compound chemical structures" by Zhaorui Zuo, Penglei Wang, Xiaowei Chen, Li Tian, Hui Ge & Dahong Qian.
 
-## Running the model
+## Running the model within container
 The first step is to build the singularity container. After that the CANDLE_DATA_DIR and CUDA_VISIBLE_DEVICES environment variables have to set. After that, the different shell scripts can be used for training and evaluation.
 
 ### Building the container
@@ -25,8 +25,29 @@ To train the model using CCLE data, execute the following command. This is will 
 
 The outputs and the logs get written to the output_dir specified in the swnet_ccle_model.txt.
 
-
-
+## Running the model outside container
+### Installation
+---
+Install the requirements (listed in environment.yaml). We're using Anaconda to install the environment:
+```
+conda env create -f environment.yaml
+conda activate swnet
+pip install numpy==1.17
+```
+Install CANDLE library:
+```
+pip install git+https://github.com/ECP-CANDLE/candle_lib.git@develop
+```
+### Modification
+Modify line 14 in train.sh such that:
+```
+CANDLE_MODEL=SWnet_CCLE_baseline_pytorch.py
+```
+### Run the code
+Assign CUDA_VISIBLE_DEVICES and CANDLE_DATA_DIR using export
+```
+bash train.sh $CUDA_VISIBLE_DEVICES $CANDLE_DATA_DIR
+```
 <!-- 
 ### Data
 The data in the folder is prepared for training and evaluating the SWnet.
