@@ -5,7 +5,7 @@ From: pytorch/pytorch:1.12.0-cuda11.3-cudnn8-devel
 	MANTAINER Gihan Panapitiya
 
 %setup
-	cp ./src/Singularity_gpu_fix.sh $SINGULARITY_ROOTFS
+	cp ./Singularity_gpu_fix.sh $SINGULARITY_ROOTFS
 	# add local url of this repository for testing
         # cp -r /path/to/local/SWnet $SINGULARITY_ROOTFS/usr/local/
 %post
@@ -33,24 +33,8 @@ From: pytorch/pytorch:1.12.0-cuda11.3-cudnn8-devel
 	git clone https://github.com/gihanpanapitiya/SWnet.git
 	cd SWnet
 	git checkout to_candle
-	chmod +x train_self_attn_gdsc.sh
-	chmod +x train_self_attn_ccle.sh
-	chmod +x train_multi_task.sh
-	chmod +x eval_self_attn_gdsc.sh
-	chmod +x eval_self_attn_ccle.sh
-	chmod +x train.sh
-	chmod +x infer.sh
-	chmod +x preprocess.sh
 
-	cp train_self_attn_gdsc.sh /usr/local/bin
-	cp train_self_attn_ccle.sh /usr/local/bin
-	cp train_multi_task.sh /usr/local/bin
-	cp eval_self_attn_gdsc.sh /usr/local/bin
-	cp eval_self_attn_ccle.sh /usr/local/bin
-	cp train.sh /usr/local/bin
-	cp infer.sh /usr/local/bin
-	cp preprocess.sh /usr/local/bin
-
-	
+        chmod +x *.sh
+        cp *.sh /usr/local/bin
 
 	mkdir /candle_data_dir
