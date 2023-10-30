@@ -169,11 +169,15 @@ def run(gParameters):
 
 
     if 'original' in data_source:
-        untils.get_data(data_url=data_url, cache_subdir=data_path, radius=radius, download=download_data)
         n_genes=1478
+        # currently works with original CCLE data
         if data_source == 'ccle_original':
             data_type='CCLE'
-            gParameters['data_type'] = data_type
+        elif data_source == 'gdsc_original':
+            data_type='GDSC'
+
+        untils.get_data(data_url=data_url, cache_subdir=data_path, radius=radius, download=True, data_type=data_type)
+        gParameters['data_type'] = data_type
         prepare_graph_data(data_path, gParameters)
         prepare_similarity_data(data_path, data_type, gParameters)
 
@@ -195,13 +199,11 @@ def run(gParameters):
 
         st_pp = time.time() 
         print("Creating data for candle" )
-        untils.get_data(data_url, os.path.join(data_path, 'swn_original'), download_data, False)
-
-        
-        if download_data:
-            get_data(data_url, os.path.join(data_path, 'swn_original'), True, False)
-            downloader = Downloader(data_version)
-            downloader.download_candle_data(data_type=data_type, split_id=data_split_id, data_dest=data_path)
+        untils.get_data(data_url=data_url, cache_subdir=os.path.join(data_path, 'swn_original'), radius=radius, download=True, svn=False)
+        #if download_data:
+        #get_data(data_url, os.path.join(data_path, 'swn_original'), True, False)
+        downloader = Downloader(data_version)
+        downloader.download_candle_data(data_type=data_type, split_id=data_split_id, data_dest=data_path)
         #     download_candle_data(data_type=data_type, split_id=data_split_id, data_dest=data_path)    
 
         for p in [f'{data_type}/{data_type}_Data', f'{data_type}/drug_similarity', f'{data_type}/graph_data']:
@@ -219,8 +221,8 @@ def run(gParameters):
                          ext_gene_file=ext_gene_file,
                          params=gParameters)
 
-        df_mut = pd.read_csv(os.path.join(data_path,f'{data_type}/{data_type}_Data', f'{data_type}_RNAseq.csv'), index_col=0)
-        n_genes = len(df_mut.columns)
+        # df_mut = pd.read_csv(os.path.join(data_path,f'{data_type}/{data_type}_Data', f'{data_type}_RNAseq.csv'), index_col=0)
+        # n_genes = len(df_mut.columns)
 
         if not os.path.exists(os.path.join(data_path, data_type, f'graph_data/radius{radius}/compounds')):
             print("creating graph data")

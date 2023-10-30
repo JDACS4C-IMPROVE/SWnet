@@ -3,127 +3,97 @@
 
 The Candle compatible code for the paper "SWnet: a deep learning model for drug response prediction from cancer genomic signatures and compound chemical structures" by Zhaorui Zuo, Penglei Wang, Xiaowei Chen, Li Tian, Hui Ge & Dahong Qian.
 
-## Running the model
-The first step is to build the singularity container. After that the CANDLE_DATA_DIR and CUDA_VISIBLE_DEVICES environment variables have to set. After that, the different shell scripts can be used for training and evaluation.
-
-### Building the container
----
-Training and inference are carried out using a Singularity container. The definition file to build the container is SWnet.def.
-Use the command
+## Install Instructions
+### Using Singularity
+To build the Singularity container, run
 ```
-singularity build --fakeroot SWnet.sif SWnet.def
+singularity build --fakeroot SWnet.sif SWnet.def,
 ```
-to build the container. 
+where SWnet.sif is the name of the Singularity container and SWnet.def is the Singularity definition file provided in this repository
 
-### Training 
----
-To train the model using CCLE data, execute the following command. This is will also perform inference on the test set. The configurations are given in the swnet_ccle_model.txt. To get the results using the original data, use these settings; download_data=True, process_data=True, data_source = 'ccle_original.
-
+### Using Conda
 ```
-- singularity exec --nv SWnet.sif train.sh $CUDA_VISIBLE_DEVICES $CANDLE_DATA_DIR
+conda env create -f environment.yaml
 ```
 
-The outputs and the logs get written to the output_dir specified in the swnet_ccle_model.txt.
 
+## Running the model using the original author's data
+Set the CANDLE_DATA_DIR and CUDA_VISIBLE_DEVICES environment variables.
 
+1. Download and process data
+Make sure data_source is set to 'ccle_original' in the swnet_ccle_model.txt. Yet to test the model with original GDSC data.
 
-<!-- 
-### Data
-The data in the folder is prepared for training and evaluating the SWnet.
-* `data/GDSC/drug_similarity/GDSC_drug_similarity.csv`: This csv file record the similarity of drugs.
-* `data/GDSC/GDSC_data`: The GDSC data which include 1478 genes across 1018 cell lines.
-* `data/GDSC/graph_data`: The molecular graph information is saved in this data file.
-* `data/CCLE/drug_similarity/CCLE_drug_similarity.csv`: This csv file record the similarity of drugs.
-* `data/CCLE/CCLE_data`: The CCLE data which include 1478 genes across 469 cell lines.
-* `data/CCLE/graph_data`: The molecular graph information is saved in this data file.
-
-> ## Installation
----
-
-Install the requirements (listed in environment.yaml). We're using Anaconda to install the environment:
 ```
-conda create -f environment.yaml
-conda activate swnet
-pip install numpy==1.16.2
+singularity exec --nv SWnet.sif preprocess.sh  $CUDA_VISIBLE_DEVICES $CANDLE_DATA_DIR
 ```
 
-> ## Running the Code
----
-
-### Model Code
-
-As shown below, SWnet adopts a dual converge architercture.Genomic signature and chemical fingerprints are porcessed in parallel through GNN and CNN layers to extract independent features, which are then concatenated. And SWnet also integrate multi-task learning and self-attentation mechanism to further improve the performance.
-The code for the SWnet can be found in `multi-task, self-attention, single-layer`.
-
-### Evaluation on pretrained model
-* `cd self-attention`
-* `python SWnet_GDSC_self-attention_evaluate.py `
-* `python SWnet_CCLE_self-attention_evaluate.py `
-### or
-
-### Train a prediction model on GDSC data
-#### Prepare graph data, we can set the radius parameter to 1, 2, 3 or 4
-* `cd data/GDSC` 
-* `python preprocess_drug_graph.py --radius 1`
-
-#### Prepare drug similarity data
-* `cd data/GDSC`
-* `python preprocess_drug_similarity.py`
-
-#### Train self-attention SWnet 
-* `cd self-attention`
-* `python SWnet_GDSC_self-attention_train.py `
-
-you can set hyper-parameter like this:
-* `python SWnet_GDSC_self-attention_train.py --radius 3 --split_case 0 --layer_gnn 3`
-
-#### Evaluate self-attention SWnet
-* `cd self-attention`
-* `python SWnet_GDSC_self-attention_evaluate.py `
-
-### or
-
-### Train a prediction model on CCLE data
-#### Prepare graph data, we can set the radius parameter to 1, 2 ,3 or 4
-* `cd data/CCLE` 
-* `python preprocess_drug_graph.py --radius 1`
-
-#### Prepare drug similarity data
-* `cd data/CCLE`
-* `python preprocess_drug_similarity.py`
-
-#### Train self-attention SWnet 
-* `cd self-attention`
-* `python SWnet_CCLE_self-attention_train.py `
-
-you can set hyper-parameter like this:
-* `python SWnet_CCLE_self-attention_train.py --radius 3 --split_case 0 --layer_gnn 3`
-
-#### Evaluate self-attention SWnet
-* `cd self-attention`
-* `python SWnet_CCLE_self-attention_evaluate.py `
-
-#### Run Other scripts
-
-The following scripts training the muti-task SWnet.
-* `cd multi-task`
-* `python SWnet_multi-task.py`
-
-The following scripts training the single-layer SWnet.
-
-* `cd single-layer`
-* `python SWnet_single_no_weight.py`
-* `python SWnet_single_yes_weight.py`
-
-The following scripts training the GDSC gene weight Layer.
-
-* `cd self-attention`
-* `python SWnet_GDSC_self-attention_train.py --radius 3 --split_case 0`
-* `python SWnet_CCLE_self-attention_train.py --radius 3 --split_case 0`
-
-> ## Citation
----
-If you find this code useful for your research, please use the following citation.
+2. Train the model:
 ```
-Zuo, Z., Wang, P., Chen, X. et al. SWnet: a deep learning model for drug response prediction from cancer genomic signatures and compound chemical structures. BMC Bioinformatics 22, 434 (2021). https://doi.org/10.1186/s12859-021-04352-9
-``` -->
+singularity exec --nv SWnet.sif train.sh  $CUDA_VISIBLE_DEVICES $CANDLE_DATA_DIR
+```
+
+3. Get predictions:
+```
+singularity exec --nv SWnet.sif infer.sh  $CUDA_VISIBLE_DEVICES $CANDLE_DATA_DIR
+```
+
+
+
+
+## Running the model for CSA models for within-study validation
+Set the CANDLE_DATA_DIR and CUDA_VISIBLE_DEVICES environment variables.
+
+1. Download and process data. 
+Set the following parameters in the swnet_ccle_model.txt
+```
+data_source= choose one from these : 'ccle_candle', 'gcsi_candle', 'gdscv1_candle', 'gdscv2_candle', 'ctrpv2_candle'
+cross_study=False
+data_split_id=0
+metric='auc' or 'ic50'
+```
+Then run the following command,
+```
+python download_process.py
+```
+
+2. Train the model:
+```
+python SWnet_CCLE_baseline_pytorch.py
+```
+3. Get predictions:
+```
+python infer.py
+```
+
+## Running the model for CSA models for cross-study validation
+
+1. Download and process data. 
+Set the following parameters in the swnet_ccle_model.txt. We have to set cross_study=True for this case.
+```
+data_source = ctrpv2_candle # the name of the data_set the model will be trained with (chose one from these: 'ccle_candle' 'gcsi_candle', 'gdscv1_candle', 'gdscv2_candle', 'ctrpv2_candle')
+other_ds = 'ccle_candle, gcsi_candle, gdscv1_candle' # other datasets the trained model will be tested with. specify these datasets seperated by a comma. eg: 'ccle_candle' 'gcsi_candle', 'gdscv1_candle'
+cross_study=True
+data_split_id=0
+metric='auc' or 'ic50'
+
+```
+Then run the following command,
+```
+python download_process.py
+```
+
+This will take a while.
+
+2. Train the model:
+```
+python SWnet_CCLE_baseline_pytorch.py
+```
+
+3. Get predictions:
+Change the data_source to what you want to test on and run infer.py as follows.
+```
+python infer.py --data_source ccle_candle
+```
+
+
+
