@@ -13,15 +13,20 @@ where SWnet.sif is the name of the Singularity container and SWnet.def is the Si
 
 ### Using Conda
 ```
+git clone https://github.com/gihanpanapitiya/SWnet.git
+cd SWnet
+git checkout to_candle
 conda env create -f environment.yaml
+conda activate swnet
 ```
 
+For each of the following calculations use a seperate CANDLE_DATA_DIR
 
 ## Running the model using the original author's data
 Set the CANDLE_DATA_DIR and CUDA_VISIBLE_DEVICES environment variables.
 
 1. Download and process data
-Make sure data_source is set to 'ccle_original' in the swnet_ccle_model.txt. Yet to test the model with original GDSC data.
+Make sure data_source is set to 'ccle_original' in the swnet_ccle_model.txt. Yet to test the model with original GDSC data. Make sure cross_study is set to False (cross_study=False).
 
 ```
 python preprocess.py
